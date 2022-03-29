@@ -8,7 +8,7 @@ function component() {
   // Lodash, currently included via a script, is required for this line to work
   // element.innerHTML = 'Hello';
   // element.innerHTML = _.join(['Hello', 'webpack'], ' ');
-  console.log('sdfdsfdsfsdf');
+  // console.log('sdfdsfdsfsdf');
   return element;
 }
 
