@@ -1,6 +1,7 @@
 // Вы можете указать, какие плагины Вам нужны
 // import { Tooltip, Toast, Popover } from 'bootstrap';
 import 'bootstrap';
+// import * as bootstrap from 'bootstrap';
 
 function component() {
   const element = document.createElement('div');
