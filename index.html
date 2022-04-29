@@ -14,11 +14,13 @@
   </head>
   <body>
     <!-- <script src="./src/index.js"></script> -->
-    <div class="container-fluid">
+    <div class="container-fluid form-container">
       <div class="row justify-content-center">
         <div class="col-8">
-          <h1>RSS агрегатор</h1>
-          <p>Начните читать RSS сегодня! Это легко, это красиво.</p>
+          <h1 class="form-container__title">RSS агрегатор</h1>
+          <p class="form-container__description">
+            Начните читать RSS сегодня! Это легко, это красиво.
+          </p>
           <form class="rss-form">
             <div class="row justify-content-md-center">
               <div class="col">
@@ -28,19 +30,31 @@
                   required=""
                   name="url"
                   aria-label="url"
-                  class="form-control w-100"
-                  placeholder="ссылка RSS"
+                  class="form-control w-100 form-container__input"
                   autocomplete="off"
                 />
-                <label for="url-input">Ссылка RSS</label>
+                <label class="form-container__label" for="url-input"
+                  >Ссылка RSS</label
+                >
               </div>
               <div class="col-auto">
-                <button class="btn btn-primary" type="submit">Добавить</button>
+                <button
+                  class="btn btn-primary form-container__btn"
+                  type="submit"
+                >
+                  Добавить
+                </button>
               </div>
             </div>
           </form>
+          <p class="form-container__example">
+            Пример: https://ru.hexlet.io/lessons.rss
+          </p>
+          <p class="form-container__state-message"></p>
         </div>
       </div>
+      <!-- <p class="ru-lang">Rus</p>
+      <p class="en-lang">Eng</p> -->
     </div>
   </body>
 </html>

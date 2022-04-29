@@ -1,0 +1,96 @@
+@font-face {
+  font-family: system;
+  font-style: normal;
+  font-weight: 300;
+  src: local(".SFNSText-Light"), local(".HelveticaNeueDeskInterface-Light"),
+    local(".LucidaGrandeUI"), local("Ubuntu Light"), local("Segoe UI Light"),
+    local("Roboto-Light"), local("DroidSans"), local("Tahoma");
+}
+
+body {
+  color: #fff;
+  font-family: "system";
+}
+
+.form-container {
+  background-color: #212529;
+  padding: 48px;
+}
+
+.form-container__title {
+  font-size: 64px;
+}
+
+.form-container__description {
+  font-size: 20px;
+}
+
+.rss-form {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.form-container__input {
+  border: 1px solid rgba(0, 0, 0, 0);
+  line-height: 39px;
+  padding-top: 14px;
+  padding-right: 16px;
+  padding-bottom: 0px;
+  padding-left: 16px;
+}
+
+.form-container__invalid {
+  border: 1px solid #dc3545;
+  border-color: #dc3545;
+  /* padding-top: 11px;
+  padding-bottom: 11px; */
+}
+
+.form-container__invalid:focus {
+  outline: 1px solid #dc3545;
+  box-shadow: 0 0 0 0.25rem rgb(220 53 69 / 25%);
+}
+
+.form-container__btn {
+  font-size: 20px;
+  padding-top: 10px;
+  padding-bottom: 12px;
+  width: 185px;
+  display: block;
+}
+
+.form-container__label {
+  position: absolute;
+  top: 17px;
+  left: 17px;
+  color: #212529;
+  transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.form-control:focus ~ .form-container__label,
+.form-control:valid ~ .form-container__label {
+  /* font-size: 12px; */
+  color: #6c757d;
+  transform: translateY(-14px) translateX(-8px) scale(0.8);
+  /* top: 7px; */
+}
+
+.form-container__example {
+  font-size: 16px;
+  color: #6c757d;
+
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+.form-container__state-message {
+  position: absolute;
+}
+
+.form-container__state-message-valid {
+  color: rgb(25, 135, 84);
+}
+
+.form-container__state-message-invalid {
+  color: rgb(220, 53, 69);
+}
