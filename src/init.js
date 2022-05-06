@@ -12,6 +12,7 @@ import i18next from 'i18next';
 //   object, string, number, date, InferType,
 // } from 'yup';
 import * as yup from 'yup';
+import axios from 'axios';
 
 import ru from './locales/ru';
 // import en from './locales/en';
@@ -89,6 +90,11 @@ const runApp = () => {
 
   const watchedState = render(state, i18nextInstance);
 
+  const parser = (data) => {
+    const parse = new DOMParser();
+    return parse.parseFromString(data, 'application/xml');
+  };
+
   const handle = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -96,24 +102,34 @@ const runApp = () => {
 
     userSchema
       .validate(data)
+      .then((result) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(result.url)}`))
       .then((value) => {
+        const dom = parser(value.data.contents);
+
+        const title = dom.querySelector('title').textContent;
+        console.log('valuez', value.data.contents);
+        console.log('title', title);
+        const { feed, posts } = value.data.contents;
+        console.log('feed', feed);
+        console.log('posts', posts);
+
         if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
           watchedState.siteStorage.push(data.url);
           watchedState.rssForm.valid = true;
           // watchedState.rssForm.errors = [];
-          console.log(state.siteStorage, 'storage view');
+          console.log('storage view', state.siteStorage);
         } else {
           watchedState.rssForm.valid = false;
           watchedState.rssForm.errors.push(`duplicate ${data.url}`);
           console.log(state.rssForm.errors);
         }
-        console.log(value, 'value');
+        // console.log('value', value);
       })
 
       .catch((err) => {
         // console.log(err, 'error catch');
         watchedState.rssForm.valid = false;
-        watchedState.rssForm.errors.push(`${err} ${data.url}`);
+        watchedState.rssForm.errors.push(`errrrrrrrrr ${err} ${data.url}`);
         console.log(state.rssForm.errors);
       });
 
