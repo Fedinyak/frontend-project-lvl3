@@ -57,6 +57,8 @@ const state = {
     errors: [],
   },
   siteStorage: [],
+  posts: [],
+  feed: [],
 };
 
 const formElement = document.querySelector('.rss-form');
@@ -95,6 +97,20 @@ const runApp = () => {
     return parse.parseFromString(data, 'application/xml');
   };
 
+  const getFeed = (dom) => ({
+    title: dom.querySelector('title').textContent,
+    description: dom.querySelector('description').textContent,
+  });
+
+  const getPost = (dom) => {
+    const items = dom.querySelectorAll('item');
+    return Array.from(items).map((item) => ({
+      title: item.querySelector('title').textContent,
+      description: item.querySelector('description').textContent,
+      link: item.querySelector('link').textContent,
+    }));
+  };
+
   const handle = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -106,18 +122,27 @@ const runApp = () => {
       .then((value) => {
         const dom = parser(value.data.contents);
 
-        const title = dom.querySelector('title').textContent;
-        console.log('valuez', value.data.contents);
-        console.log('title', title);
-        const { feed, posts } = value.data.contents;
+        const feed = getFeed(dom);
+        const post = getPost(dom);
+
         console.log('feed', feed);
-        console.log('posts', posts);
+        console.log('post', post);
+        // console.log('postArray.description', postArray[0].description);
+        // console.log('postArray.link', postArray.link);
+
+        // const { feed, posts } = value.data.contents;
+        // console.log('feed', feed);
+        // console.log('posts', posts);
 
         if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
           watchedState.siteStorage.push(data.url);
+          watchedState.posts.push(post);
+          watchedState.feed.push(feed);
           watchedState.rssForm.valid = true;
           // watchedState.rssForm.errors = [];
           console.log('storage view', state.siteStorage);
+          console.log('feed state', state.feed);
+          console.log('post state', state.posts);
         } else {
           watchedState.rssForm.valid = false;
           watchedState.rssForm.errors.push(`duplicate ${data.url}`);

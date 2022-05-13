@@ -61,6 +61,7 @@ body {
 
 .form-container__label {
   position: absolute;
+  user-select: none;
   top: 17px;
   left: 17px;
   color: #212529;
@@ -93,4 +94,14 @@ body {
 
 .form-container__state-message-invalid {
   color: rgb(220, 53, 69);
+}
+
+.content {
+  color: #212529;
+  padding: 3rem;
+}
+
+.list {
+  list-style-type: none;
+  padding-left: 0;
 }
