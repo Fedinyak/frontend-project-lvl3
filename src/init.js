@@ -97,17 +97,19 @@ const runApp = () => {
     return parse.parseFromString(data, 'application/xml');
   };
 
-  const getFeed = (dom) => ({
+  const parseFeed = (dom) => ({
     title: dom.querySelector('title').textContent,
     description: dom.querySelector('description').textContent,
+    id: _.uniqueId('idFeed_'),
   });
 
-  const getPost = (dom) => {
+  const parsePost = (dom) => {
     const items = dom.querySelectorAll('item');
     return Array.from(items).map((item) => ({
       title: item.querySelector('title').textContent,
       description: item.querySelector('description').textContent,
       link: item.querySelector('link').textContent,
+      id: _.uniqueId('idPost_'),
     }));
   };
 
@@ -122,8 +124,8 @@ const runApp = () => {
       .then((value) => {
         const dom = parser(value.data.contents);
 
-        const feed = getFeed(dom);
-        const post = getPost(dom);
+        const feed = parseFeed(dom);
+        const post = parsePost(dom);
 
         console.log('feed', feed);
         console.log('post', post);
@@ -136,6 +138,11 @@ const runApp = () => {
 
         if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
           watchedState.siteStorage.push(data.url);
+
+          // const arr1 = watchedState.state.posts[0];
+          // const arr2 = post;
+          // const unArr = arr1.concat(arr2);
+
           watchedState.posts.push(post);
           watchedState.feed.push(feed);
           watchedState.rssForm.valid = true;
