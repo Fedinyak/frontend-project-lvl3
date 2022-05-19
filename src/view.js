@@ -43,10 +43,24 @@ const renderPost = (state) => state.map(({
   a.setAttribute('data-id', id);
   a.textContent = title;
   a.setAttribute('href', link);
+  a.className = 'fw-bold';
 
   button.className = 'btn btn-outline-primary btn-sm';
   button.setAttribute('data-id', id);
+  button.setAttribute('data-bs-toggle', 'modal');
   button.textContent = 'Просмотр';
+
+  button.addEventListener('click', (event) => {
+    console.log('batc', event.target.dataset.id);
+    console.log('batc a', a.getAttribute('data-id'));
+    if (event.target.dataset.id === a.getAttribute('data-id')) {
+      console.log('got');
+      // a.className.remove('fw-bold');
+      a.className = 'fw-normal link-secondary';
+    }
+    // console.log('batc state.visitedLink', state.visitedLink);
+  });
+
   li.append(a, button);
   return li;
   // setAttribute('data-id', id

@@ -57,8 +57,10 @@ const state = {
     errors: [],
   },
   siteStorage: [],
+  postsTitle: [],
   posts: [],
   feed: [],
+  visitedLink: [],
 };
 
 const formElement = document.querySelector('.rss-form');
@@ -113,6 +115,33 @@ const runApp = () => {
     }));
   };
 
+  const parsePostTitle = (dom) => {
+    const items = dom.querySelectorAll('item');
+    return Array.from(items).map((item) => (
+      item.querySelector('title').textContent));
+  };
+
+  const listenRss = (value) => {
+    const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch((e) => console.log(e)));
+    const results = Promise.all(promises);
+    results.then((responses) => {
+      responses.forEach((response) => {
+        if (response) {
+          const dom = parser(response.data.contents);
+          const post = parsePost(dom);
+          post.map((item) => {
+            console.log('listen post state', state.posts);
+            if (!watchedState.postsTitle[0].includes(item.title)) {
+              watchedState.posts.push([item]);
+              watchedState.postsTitle[0].push(item.title);
+              console.log('!arrrrrrr', state.postsTitle);
+            }
+          });
+        }
+      });
+    }).then(() => setTimeout(() => listenRss(value), 5000));
+  };
+
   const handle = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -126,9 +155,11 @@ const runApp = () => {
 
         const feed = parseFeed(dom);
         const post = parsePost(dom);
+        const postTitle = parsePostTitle(dom);
 
         console.log('feed', feed);
         console.log('post', post);
+        console.log('postTitle', postTitle);
         // console.log('postArray.description', postArray[0].description);
         // console.log('postArray.link', postArray.link);
 
@@ -144,12 +175,14 @@ const runApp = () => {
           // const unArr = arr1.concat(arr2);
 
           watchedState.posts.push(post);
+          watchedState.postsTitle.push(postTitle);
           watchedState.feed.push(feed);
           watchedState.rssForm.valid = true;
           // watchedState.rssForm.errors = [];
           console.log('storage view', state.siteStorage);
           console.log('feed state', state.feed);
           console.log('post state', state.posts);
+          console.log('postsTitle state', state.postsTitle);
         } else {
           watchedState.rssForm.valid = false;
           watchedState.rssForm.errors.push(`duplicate ${data.url}`);
@@ -165,6 +198,7 @@ const runApp = () => {
         console.log(state.rssForm.errors);
       });
 
+    listenRss(watchedState);
     const formInput = document.querySelector('#url-input');
     // formInput.value = '';
     formInput.focus();

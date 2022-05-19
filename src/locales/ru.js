@@ -11,6 +11,7 @@ export default {
       button: 'Добавить',
       errors: {
         invalid: 'Ссылка должна быть валидным URL',
+        duplicate: 'RSS уже существует',
       },
     },
   },
