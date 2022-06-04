@@ -1,23 +1,11 @@
-// Вы можете указать, какие плагины Вам нужны
-// import { Tooltip, Toast, Popover } from 'bootstrap';
-
-// ./node_modules/bootstrap/scss/bootstrap.scss';
-// import 'bootstrap/scss/bootstrap.scss';
-
-// import 'bootstrap';
-// import * as bootstrap from 'bootstrap';
 import _ from 'lodash';
 import i18next from 'i18next';
-// import {
-//   object, string, number, date, InferType,
-// } from 'yup';
 import * as yup from 'yup';
 import axios from 'axios';
-
 import ru from './locales/ru';
-// import en from './locales/en';
 import render from './view';
-
+// ---------------------- Language test
+// import en from './locales/en';
 // const runApp = () => {
 //   const i18nextInstance = i18next.createInstance();
 //   i18nextInstance.init({
@@ -47,6 +35,8 @@ import render from './view';
 //   title.textContent = i18nextInstance.t('header.title');
 // });
 
+// ---------------------- Language test
+
 const userSchema = yup.object().shape({
   url: yup.string().url(),
 });
@@ -60,11 +50,57 @@ const state = {
   postsTitle: [],
   posts: [],
   feed: [],
-  visitedLink: [],
+  visitedPost: [],
 };
 
 const formElement = document.querySelector('.rss-form');
-// const input = document.querySelector('.form-control');
+
+const parser = (data) => {
+  const parse = new DOMParser();
+  return parse.parseFromString(data, 'application/xml');
+};
+
+const parseFeed = (dom) => ({
+  title: dom.querySelector('title').textContent,
+  description: dom.querySelector('description').textContent,
+  // id: _.uniqueId('idFeed_'),
+});
+
+// const parsePost = (dom) => {
+//   const items = dom.querySelectorAll('item');
+//   return Array.from(items).map((item) => ({
+//     title: item.querySelector('title').textContent,
+//     description: item.querySelector('description').textContent,
+//     link: item.querySelector('link').textContent,
+//     // id: _.uniqueId('idPost_'),
+//   }));
+// };
+
+const parsePost = (dom) => {
+  const result = [];
+  const items = dom.querySelectorAll('item');
+  items.forEach((item) => {
+    const post = {
+      title: item.querySelector('title').textContent,
+      description: item.querySelector('description').textContent,
+      link: item.querySelector('link').textContent,
+      // id: _.uniqueId('idPost_'),
+    };
+    // state.posts = [post, state.posts];
+    // state.posts.push(post);
+    result.push(post);
+  });
+  return result;
+};
+
+const addId = (posts) => {
+  const result = [];
+  posts.forEach((post) => {
+    const id = _.uniqueId('idPost_');
+    result.push({ ...post, id });
+  });
+  return result;
+};
 
 const runApp = () => {
   const i18nextInstance = i18next.createInstance();
@@ -94,51 +130,70 @@ const runApp = () => {
 
   const watchedState = render(state, i18nextInstance);
 
-  const parser = (data) => {
-    const parse = new DOMParser();
-    return parse.parseFromString(data, 'application/xml');
-  };
+  // const parsePostTitle = (dom) => {
+  //   const items = dom.querySelectorAll('item');
+  //   return Array.from(items).map((item) => (
+  //     item.querySelector('title').textContent));
+  // };
 
-  const parseFeed = (dom) => ({
-    title: dom.querySelector('title').textContent,
-    description: dom.querySelector('description').textContent,
-    id: _.uniqueId('idFeed_'),
-  });
+  // const listenRss = (value) => {
+  //   // const state = value;
 
-  const parsePost = (dom) => {
-    const items = dom.querySelectorAll('item');
-    return Array.from(items).map((item) => ({
-      title: item.querySelector('title').textContent,
-      description: item.querySelector('description').textContent,
-      link: item.querySelector('link').textContent,
-      id: _.uniqueId('idPost_'),
-    }));
-  };
-
-  const parsePostTitle = (dom) => {
-    const items = dom.querySelectorAll('item');
-    return Array.from(items).map((item) => (
-      item.querySelector('title').textContent));
-  };
+  //   const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch((e) => console.log(e)));
+  //   const results = Promise.all(promises);
+  //   results.then((responses) => {
+  //     responses.forEach((response) => {
+  //       if (response) {
+  //         const dom = parser(response.data.contents);
+  //         const post = parsePost(dom);
+  //         const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
+  //         // const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
+  //         console.log(currentPost);
+  //         post.forEach((item) => {
+  //           if (!currentPost[0].includes(item.title)) {
+  //             // watchedState.posts.push(item);
+  //             watchedState.posts[0].push([item]);
+  //             // console.log(item);
+  //           }
+  //         });
+  //       }
+  //     });
+  //   // }).then(() => setTimeout(listenRss, 5000));
+  //   }).then(() => setTimeout(() => listenRss(value), 5000));
+  // };
 
   const listenRss = (value) => {
+    // const state = value;
     const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch((e) => console.log(e)));
     const results = Promise.all(promises);
     results.then((responses) => {
       responses.forEach((response) => {
         if (response) {
           const dom = parser(response.data.contents);
-          const post = parsePost(dom);
-          post.map((item) => {
-            console.log('listen post state', state.posts);
-            if (!watchedState.postsTitle[0].includes(item.title)) {
-              watchedState.posts.push([item]);
-              watchedState.postsTitle[0].push(item.title);
-              console.log('!arrrrrrr', state.postsTitle);
+          // const post = parsePost(dom);
+          const parsedPost = parsePost(dom);
+          // console.log('postP', postP);
+          const post = addId(parsedPost);
+          const currentPost = watchedState.posts.map((items) => items.title);
+          // const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
+          // console.log(currentPost);
+          post.forEach((item) => {
+            if (!currentPost.includes(item.title)) {
+              // watchedState.posts.push(item);
+              // console.log(item);
+              watchedState.posts = [...watchedState.posts, item];
             }
           });
+          // const buttons = document.querySelectorAll('.btn-sm');
+          // buttons.forEach((button) => {
+          //   button.addEventListener('click', (event) => {
+          //     watchedState.visitedPost.push(event.target.dataset.id);
+          //     console.log(watchedState.visitedPost);
+          //   });
+          // });
         }
       });
+    // }).then(() => setTimeout(listenRss, 5000));
     }).then(() => setTimeout(() => listenRss(value), 5000));
   };
 
@@ -154,59 +209,100 @@ const runApp = () => {
         const dom = parser(value.data.contents);
 
         const feed = parseFeed(dom);
-        const post = parsePost(dom);
-        const postTitle = parsePostTitle(dom);
+        const parsedPost = parsePost(dom);
+        // console.log('postP', postP);
+        const post = addId(parsedPost);
 
-        console.log('feed', feed);
-        console.log('post', post);
-        console.log('postTitle', postTitle);
-        // console.log('postArray.description', postArray[0].description);
-        // console.log('postArray.link', postArray.link);
-
-        // const { feed, posts } = value.data.contents;
-        // console.log('feed', feed);
-        // console.log('posts', posts);
+        // const post = parsePost(dom);
+        // const postTitle = parsePostTitle(dom);
 
         if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
           watchedState.siteStorage.push(data.url);
-
-          // const arr1 = watchedState.state.posts[0];
-          // const arr2 = post;
-          // const unArr = arr1.concat(arr2);
-
-          watchedState.posts.push(post);
-          watchedState.postsTitle.push(postTitle);
+          // watchedState.posts.push(post);
+          watchedState.posts = [...post, ...watchedState.posts];
+          // watchedState.postsTitle.push(postTitle);
+          // console.log('watchedState.posts', watchedState.posts);
           watchedState.feed.push(feed);
-          watchedState.rssForm.valid = true;
-          // watchedState.rssForm.errors = [];
-          console.log('storage view', state.siteStorage);
-          console.log('feed state', state.feed);
-          console.log('post state', state.posts);
-          console.log('postsTitle state', state.postsTitle);
-        } else {
-          watchedState.rssForm.valid = false;
+          watchedState.rssForm.valid = 'valid';
+
+          // const buttons = document.querySelectorAll('.btn-sm');
+          // buttons.forEach((button) => {
+          //   button.addEventListener('click', (event) => {
+          //     watchedState.visitedPost.push(event.target.dataset.id);
+          //     console.log(watchedState.visitedPost);
+          //   });
+          // });
+        } else if (watchedState.siteStorage.includes(data.url)) {
+          watchedState.rssForm.valid = 'duplicate';
           watchedState.rssForm.errors.push(`duplicate ${data.url}`);
           console.log(state.rssForm.errors);
         }
-        // console.log('value', value);
       })
 
       .catch((err) => {
-        // console.log(err, 'error catch');
-        watchedState.rssForm.valid = false;
+        watchedState.rssForm.valid = 'error';
         watchedState.rssForm.errors.push(`errrrrrrrrr ${err} ${data.url}`);
         console.log(state.rssForm.errors);
       });
 
-    listenRss(watchedState);
     const formInput = document.querySelector('#url-input');
+
     // formInput.value = '';
     formInput.focus();
   };
+  listenRss(watchedState);
+
+  // const buttons = document.querySelectorAll('.btn-sm');
+  // buttons.forEach((button) => {
+  //   button.addEventListener('click', (event) => {
+  //     watchedState.visitedPost.push(event.target.dataset.id);
+  //     console.log(watchedState.visitedPost);
+  //   });
+  // });
 
   formElement.addEventListener('submit', handle);
   // app(i18nextInstance);
+  // const buttons = document.querySelector('li');
+  const buttons = document.querySelector('.content__posts');
+  buttons.addEventListener('click', (event) => {
+    if (event.target.dataset.id) {
+      watchedState.visitedPost.push(event.target.dataset.id);
+      console.log(watchedState.visitedPost);
+    }
+  });
 };
+
+// ------------------------ тестовые кнопки
+const buttonPlace = document.querySelector('.rss-form');
+const formInput = document.querySelector('#url-input');
+const button1 = document.createElement('button');
+const button2 = document.createElement('button');
+const button3 = document.createElement('button');
+button1.textContent = 'lorem-rss';
+button2.textContent = 'Hexlet';
+button3.textContent = 'birman';
+button1.className = 'btn btn-outline-primary';
+button2.className = 'btn btn-outline-primary';
+button3.className = 'btn btn-outline-primary';
+const div = document.createElement('div');
+div.className = 'row justify-content-end';
+const div8 = document.createElement('div');
+div8.className = 'col-6';
+div.append(div8);
+div8.append(button1);
+div8.append(button2);
+div8.append(button3);
+buttonPlace.append(div);
+button1.addEventListener('click', () => {
+  formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
+});
+button2.addEventListener('click', () => {
+  formInput.value = 'https://ru.hexlet.io/lessons.rss';
+});
+button3.addEventListener('click', () => {
+  formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
+});
+// ------------------------ тестовые кнопки
 
 // export default formElement.addEventListener('submit', handle);
 export default runApp;
