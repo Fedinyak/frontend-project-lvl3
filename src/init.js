@@ -73,18 +73,7 @@ const parser = (data) => {
 const parseFeed = (dom) => ({
   title: dom.querySelector('title').textContent,
   description: dom.querySelector('description').textContent,
-  // id: _.uniqueId('idFeed_'),
 });
-
-// const parsePost = (dom) => {
-//   const items = dom.querySelectorAll('item');
-//   return Array.from(items).map((item) => ({
-//     title: item.querySelector('title').textContent,
-//     description: item.querySelector('description').textContent,
-//     link: item.querySelector('link').textContent,
-//     // id: _.uniqueId('idPost_'),
-//   }));
-// };
 
 const parsePost = (dom) => {
   const result = [];
@@ -94,10 +83,7 @@ const parsePost = (dom) => {
       title: item.querySelector('title').textContent,
       description: item.querySelector('description').textContent,
       link: item.querySelector('link').textContent,
-      // id: _.uniqueId('idPost_'),
     };
-    // state.posts = [post, state.posts];
-    // state.posts.push(post);
     result.push(post);
   });
   return result;
@@ -140,71 +126,23 @@ const runApp = () => {
 
   const watchedState = render(state, i18nextInstance);
 
-  // const parsePostTitle = (dom) => {
-  //   const items = dom.querySelectorAll('item');
-  //   return Array.from(items).map((item) => (
-  //     item.querySelector('title').textContent));
-  // };
-
-  // const listenRss = (value) => {
-  //   // const state = value;
-
-  //   const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch((e) => console.log(e)));
-  //   const results = Promise.all(promises);
-  //   results.then((responses) => {
-  //     responses.forEach((response) => {
-  //       if (response) {
-  //         const dom = parser(response.data.contents);
-  //         const post = parsePost(dom);
-  //         const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
-  // const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
-  //         console.log(currentPost);
-  //         post.forEach((item) => {
-  //           if (!currentPost[0].includes(item.title)) {
-  //             // watchedState.posts.push(item);
-  //             watchedState.posts[0].push([item]);
-  //             // console.log(item);
-  //           }
-  //         });
-  //       }
-  //     });
-  //   // }).then(() => setTimeout(listenRss, 5000));
-  //   }).then(() => setTimeout(() => listenRss(value), 5000));
-  // };
-
   const listenRss = (value) => {
-    // const state = value;
     const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch(() => null));
-    // const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch((e) => console.log(e)));
     const results = Promise.all(promises);
     results.then((responses) => {
       responses.forEach((response) => {
         if (response) {
           const dom = parser(response.data.contents);
-          // const post = parsePost(dom);
           const parsedPost = parsePost(dom);
-          // console.log('postP', postP);
           const post = addId(parsedPost);
           const currentPost = watchedState.posts.map((items) => items.title);
-          // const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
-          // console.log(currentPost);
           post.forEach((item) => {
             if (!currentPost.includes(item.title)) {
-              // watchedState.posts.push(item);
-              // console.log(item);
               watchedState.posts = [...watchedState.posts, item];
             }
           });
-          // const buttons = document.querySelectorAll('.btn-sm');
-          // buttons.forEach((button) => {
-          //   button.addEventListener('click', (event) => {
-          //     watchedState.visitedPost.push(event.target.dataset.id);
-          //     console.log(watchedState.visitedPost);
-          //   });
-          // });
         }
       });
-    // }).then(() => setTimeout(listenRss, 5000));
     }).then(() => setTimeout(() => listenRss(value), 5000));
   };
 
@@ -221,32 +159,16 @@ const runApp = () => {
 
         const feed = parseFeed(dom);
         const parsedPost = parsePost(dom);
-        // console.log('postP', postP);
         const post = addId(parsedPost);
-
-        // const post = parsePost(dom);
-        // const postTitle = parsePostTitle(dom);
 
         if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
           watchedState.siteStorage.push(data.url);
-          // watchedState.posts.push(post);
           watchedState.posts = [...post, ...watchedState.posts];
-          // watchedState.postsTitle.push(postTitle);
-          // console.log('watchedState.posts', watchedState.posts);
           watchedState.feed.push(feed);
           watchedState.rssForm.valid = 'valid';
-
-          // const buttons = document.querySelectorAll('.btn-sm');
-          // buttons.forEach((button) => {
-          //   button.addEventListener('click', (event) => {
-          //     watchedState.visitedPost.push(event.target.dataset.id);
-          //     console.log(watchedState.visitedPost);
-          //   });
-          // });
         } else if (watchedState.siteStorage.includes(data.url)) {
           watchedState.rssForm.valid = 'duplicate';
           watchedState.rssForm.errors.push(`duplicate ${data.url}`);
-          // console.log(state.rssForm.errors);
         }
       })
 
@@ -260,33 +182,21 @@ const runApp = () => {
         } else {
           watchedState.rssForm.valid = 'error';
           watchedState.rssForm.errors.push(`error ${err} ${data.url}`);
-          // console.log(state.rssForm.errors);
         }
       });
 
     const formInput = document.querySelector('#url-input');
 
-    // formInput.value = '';
     formInput.focus();
   };
   listenRss(watchedState);
 
-  // const buttons = document.querySelectorAll('.btn-sm');
-  // buttons.forEach((button) => {
-  //   button.addEventListener('click', (event) => {
-  //     watchedState.visitedPost.push(event.target.dataset.id);
-  //     console.log(watchedState.visitedPost);
-  //   });
-  // });
-
   formElement.addEventListener('submit', handle);
   // app(i18nextInstance);
-  // const buttons = document.querySelector('li');
   const buttons = document.querySelector('.content__posts');
   buttons.addEventListener('click', (event) => {
     if (event.target.dataset.id) {
       watchedState.visitedPost.push(event.target.dataset.id);
-      // console.log(watchedState.visitedPost);
     }
   });
 };
@@ -323,5 +233,4 @@ const runApp = () => {
 // });
 // ------------------------ тестовые кнопки
 
-// export default formElement.addEventListener('submit', handle);
 export default runApp;

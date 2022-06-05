@@ -74,12 +74,6 @@ const renderPost = (state) => {
 
     if (visited.includes(id)) {
       a.className = 'fw-normal link-secondary';
-      // const modalTitle = document.querySelector('.modal-title');
-      // const modalBody = document.querySelector('.modal-body');
-      // const modalLink = document.querySelector('.modal-footer a');
-      // modalTitle.textContent = title;
-      // modalBody.textContent = description;
-      // modalLink.setAttribute('href', link);
     } else {
       a.className = 'fw-bold';
     }
@@ -96,7 +90,6 @@ const renderPost = (state) => {
 
   postContent.innerHTML = '';
   postList.append(...postslist(state.posts, state.visitedPost));
-  // state.posts.map((item) => postList.append(...(postslist(item, state.visitedPost))));
   postContent.append(postTitleWrap, postList);
 };
 
@@ -119,9 +112,7 @@ const renderRss = (state, i18n) => {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
-    // stateMessage.textContent = `пас - ${path}, валью - ${value}`;
     stateMessage.textContent = i18n.t('formRss.errors.duplicate');
-  // } else if (state.rssForm.valid === true) {
   } else if (state.rssForm.valid === 'error') {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
@@ -131,12 +122,12 @@ const renderRss = (state, i18n) => {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
-    stateMessage.textContent = i18n.t('formRss.errors.invalid');
+    stateMessage.textContent = i18n.t('formRss.errors.invalidRss');
   } else if (state.rssForm.valid === 'network') {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
-    stateMessage.textContent = i18n.t('formRss.errors.invalid');
+    stateMessage.textContent = i18n.t('formRss.errors.network');
   } else if (state.rssForm.valid === 'valid') {
     input.classList.remove('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-invalid');
@@ -155,15 +146,9 @@ export default (state, i18n) => onChange(state, (path) => {
   }
   if (path === 'posts') {
     renderPost(state);
-    // console.log(state.posts);
   }
   if (path === 'visitedPost') {
     renderPost(state);
     renderModal(state.posts, state.visitedPost);
-    // console.log(state.posts);
   }
-  // console.log('path', path === 'rssForm.valid');
-  // console.log('value', value);
-  // renderRss(state, i18n);
-  // siteText(i18n);
 });
