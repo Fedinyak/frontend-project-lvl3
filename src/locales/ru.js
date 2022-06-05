@@ -1,10 +1,10 @@
 export default {
   translation: {
     header: {
-      title: 'RSS агрегатор тест',
+      title: 'RSS агрегатор',
       description: 'Начните читать RSS сегодня! Это легко, это красиво.',
       label: 'Ссылка RSS',
-      example: 'Пример: https://ru.hexlet.io/lessons.rss http://ilyabirman.ru/meanwhile/rss/ https://lorem-rss.herokuapp.com/feed?unit=second&interval=10',
+      example: 'Пример: https://ru.hexlet.io/lessons.rss',
     },
     formRss: {
       valid: 'RSS успешно загружен',
@@ -12,6 +12,8 @@ export default {
       errors: {
         invalid: 'Ссылка должна быть валидным URL',
         duplicate: 'RSS уже существует',
+        network: 'Ошибка сети',
+        invalidRss: 'Ресурс не содержит валидный RSS',
       },
     },
   },

@@ -62,7 +62,7 @@ const renderPost = (state) => {
   postList.className = 'list';
 
   const postslist = (item, visited) => item.map(({
-    title, description, link, id,
+    title, link, id,
   }) => {
     const li = document.createElement('li');
     li.className = 'd-flex justify-content-between align-items-start list-group-item border-0';
@@ -100,7 +100,7 @@ const renderPost = (state) => {
   postContent.append(postTitleWrap, postList);
 };
 
-const renderModal = (item, visited) => item.map(({
+const renderModal = (item, visited) => item.forEach(({
   title, description, link, id,
 }) => {
   const currentId = visited[visited.length - 1];
@@ -127,6 +127,16 @@ const renderRss = (state, i18n) => {
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
     stateMessage.textContent = i18n.t('formRss.errors.invalid');
+  } else if (state.rssForm.valid === 'invalidRss') {
+    input.classList.add('form-container__invalid');
+    stateMessage.classList.remove('form-container__state-message-valid');
+    stateMessage.classList.add('form-container__state-message-invalid');
+    stateMessage.textContent = i18n.t('formRss.errors.invalid');
+  } else if (state.rssForm.valid === 'network') {
+    input.classList.add('form-container__invalid');
+    stateMessage.classList.remove('form-container__state-message-valid');
+    stateMessage.classList.add('form-container__state-message-invalid');
+    stateMessage.textContent = i18n.t('formRss.errors.invalid');
   } else if (state.rssForm.valid === 'valid') {
     input.classList.remove('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-invalid');
@@ -136,7 +146,7 @@ const renderRss = (state, i18n) => {
   }
 };
 
-export default (state, i18n) => onChange(state, (path, value) => {
+export default (state, i18n) => onChange(state, (path) => {
   if (path === 'rssForm.valid') {
     renderRss(state, i18n);
   }

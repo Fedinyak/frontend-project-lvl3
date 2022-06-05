@@ -57,7 +57,17 @@ const formElement = document.querySelector('.rss-form');
 
 const parser = (data) => {
   const parse = new DOMParser();
-  return parse.parseFromString(data, 'application/xml');
+  const dom = parse.parseFromString(data, 'application/xml');
+
+  if (dom.querySelector('parsererror')) {
+    const error = new Error(
+      `invalidRss: ${dom.querySelector('parsererror').textContent}`,
+    );
+    error.invalidRss = true;
+    throw error;
+  }
+
+  return dom;
 };
 
 const parseFeed = (dom) => ({
@@ -147,7 +157,7 @@ const runApp = () => {
   //         const dom = parser(response.data.contents);
   //         const post = parsePost(dom);
   //         const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
-  //         // const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
+  // const currentPost = watchedState.posts.map((items) => items.map((item) => item.title));
   //         console.log(currentPost);
   //         post.forEach((item) => {
   //           if (!currentPost[0].includes(item.title)) {
@@ -164,7 +174,8 @@ const runApp = () => {
 
   const listenRss = (value) => {
     // const state = value;
-    const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch((e) => console.log(e)));
+    const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch(() => null));
+    // const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch((e) => console.log(e)));
     const results = Promise.all(promises);
     results.then((responses) => {
       responses.forEach((response) => {
@@ -235,14 +246,22 @@ const runApp = () => {
         } else if (watchedState.siteStorage.includes(data.url)) {
           watchedState.rssForm.valid = 'duplicate';
           watchedState.rssForm.errors.push(`duplicate ${data.url}`);
-          console.log(state.rssForm.errors);
+          // console.log(state.rssForm.errors);
         }
       })
 
       .catch((err) => {
-        watchedState.rssForm.valid = 'error';
-        watchedState.rssForm.errors.push(`errrrrrrrrr ${err} ${data.url}`);
-        console.log(state.rssForm.errors);
+        if (err.invalidRss) {
+          watchedState.rssForm.valid = 'invalidRss';
+          watchedState.rssForm.errors.push(`invalid RSS ${err} ${data.url}`);
+        } else if (err.isAxiosError) {
+          watchedState.rssForm.valid = 'network';
+          watchedState.rssForm.errors.push(`error network ${err} ${data.url}`);
+        } else {
+          watchedState.rssForm.valid = 'error';
+          watchedState.rssForm.errors.push(`error ${err} ${data.url}`);
+          // console.log(state.rssForm.errors);
+        }
       });
 
     const formInput = document.querySelector('#url-input');
@@ -267,41 +286,41 @@ const runApp = () => {
   buttons.addEventListener('click', (event) => {
     if (event.target.dataset.id) {
       watchedState.visitedPost.push(event.target.dataset.id);
-      console.log(watchedState.visitedPost);
+      // console.log(watchedState.visitedPost);
     }
   });
 };
 
 // ------------------------ тестовые кнопки
-const buttonPlace = document.querySelector('.rss-form');
-const formInput = document.querySelector('#url-input');
-const button1 = document.createElement('button');
-const button2 = document.createElement('button');
-const button3 = document.createElement('button');
-button1.textContent = 'lorem-rss';
-button2.textContent = 'Hexlet';
-button3.textContent = 'birman';
-button1.className = 'btn btn-outline-primary';
-button2.className = 'btn btn-outline-primary';
-button3.className = 'btn btn-outline-primary';
-const div = document.createElement('div');
-div.className = 'row justify-content-end';
-const div8 = document.createElement('div');
-div8.className = 'col-6';
-div.append(div8);
-div8.append(button1);
-div8.append(button2);
-div8.append(button3);
-buttonPlace.append(div);
-button1.addEventListener('click', () => {
-  formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
-});
-button2.addEventListener('click', () => {
-  formInput.value = 'https://ru.hexlet.io/lessons.rss';
-});
-button3.addEventListener('click', () => {
-  formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
-});
+// const buttonPlace = document.querySelector('.rss-form');
+// const formInput = document.querySelector('#url-input');
+// const button1 = document.createElement('button');
+// const button2 = document.createElement('button');
+// const button3 = document.createElement('button');
+// button1.textContent = 'lorem-rss';
+// button2.textContent = 'Hexlet';
+// button3.textContent = 'birman';
+// button1.className = 'btn btn-outline-primary';
+// button2.className = 'btn btn-outline-primary';
+// button3.className = 'btn btn-outline-primary';
+// const div = document.createElement('div');
+// div.className = 'row justify-content-end';
+// const div8 = document.createElement('div');
+// div8.className = 'col-6';
+// div.append(div8);
+// div8.append(button1);
+// div8.append(button2);
+// div8.append(button3);
+// buttonPlace.append(div);
+// button1.addEventListener('click', () => {
+//   formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
+// });
+// button2.addEventListener('click', () => {
+//   formInput.value = 'https://ru.hexlet.io/lessons.rss';
+// });
+// button3.addEventListener('click', () => {
+//   formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
+// });
 // ------------------------ тестовые кнопки
 
 // export default formElement.addEventListener('submit', handle);
