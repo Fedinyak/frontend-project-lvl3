@@ -3,7 +3,7 @@ import i18next from 'i18next';
 import * as yup from 'yup';
 import axios from 'axios';
 import ru from './locales/ru';
-import render from './view';
+import view from './view';
 // ---------------------- Language test
 // import en from './locales/en';
 // const runApp = () => {
@@ -124,7 +124,7 @@ const runApp = () => {
 
   siteText(i18nextInstance);
 
-  const watchedState = render(state, i18nextInstance);
+  const watchedState = view(state, i18nextInstance);
 
   const listenRss = (value) => {
     const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch(() => null));
