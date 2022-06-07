@@ -37,24 +37,6 @@ import view from './view';
 
 // ---------------------- Language test
 
-const userSchema = yup.object().shape({
-  url: yup.string().url(),
-});
-
-const state = {
-  rssForm: {
-    valid: null,
-    errors: [],
-  },
-  siteStorage: [],
-  postsTitle: [],
-  posts: [],
-  feed: [],
-  visitedPost: [],
-};
-
-const formElement = document.querySelector('.rss-form');
-
 const parser = (data) => {
   const parse = new DOMParser();
   const dom = parse.parseFromString(data, 'application/xml');
@@ -107,6 +89,24 @@ const runApp = () => {
       ru,
     },
   });
+
+  const userSchema = yup.object().shape({
+    url: yup.string().url(),
+  });
+
+  const state = {
+    rssForm: {
+      valid: null,
+      errors: [],
+    },
+    siteStorage: [],
+    postsTitle: [],
+    posts: [],
+    feed: [],
+    visitedPost: [],
+  };
+
+  const formElement = document.querySelector('.rss-form');
 
   const siteText = (i18n) => {
     const title = document.querySelector('.form-container__title');
