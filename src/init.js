@@ -38,6 +38,12 @@ import parse from './parser';
 
 // ---------------------- Language test
 
+const getUrl = (url) => {
+  const allorigins = new URL('https://allorigins.hexlet.app/get?disableCache=true&url=');
+  allorigins.searchParams.set('url', url);
+  return allorigins;
+};
+
 const addId = (posts) => {
   const result = [];
   posts.forEach((post) => {
@@ -89,12 +95,17 @@ const runApp = () => {
     button.textContent = i18n.t('formRss.button');
   };
 
+  // https://github.com/Fedinyak/frontend-project-lvl3/blob/a3515ddfb4676f0737a84ba33b4a6eeca9c8a3fd/src/init.js#L111-L125
+  // это же всё можно сразу перенести в шаблон. Или это для определения нужного языка сделано?
+  // (тогда ок)
+  // --- Да, нужно для определения языка, тогда не исправляю?
+
   siteText(i18nextInstance);
 
   const watchedState = view(state, i18nextInstance);
 
   const listenRss = (value) => {
-    const promises = value.siteStorage.map((url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`).catch(() => null));
+    const promises = value.siteStorage.map((url) => axios.get(getUrl(url)).catch(() => null));
     const results = Promise.all(promises);
     results.then((responses) => {
       responses.forEach((response) => {
@@ -116,6 +127,10 @@ const runApp = () => {
     }).then(() => setTimeout(() => listenRss(value), 5000));
   };
 
+  // let m = 'https://developer.mozilla.org';
+  // let a = new URL("/", m);
+  // => 'https://developer.mozilla.org/'
+
   const handle = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -123,7 +138,8 @@ const runApp = () => {
 
     userSchema
       .validate(data)
-      .then((result) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(result.url)}`))
+      .then((result) => axios.get(getUrl(result.url)))
+      // .then((result) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(result.url)}`))
       .then((value) => {
         const content = parse(value.data.contents);
 
