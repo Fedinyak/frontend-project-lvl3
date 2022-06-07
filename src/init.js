@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import axios from 'axios';
 import ru from './locales/ru';
 import view from './view';
+import parse from './parser';
 // ---------------------- Language test
 // import en from './locales/en';
 // const runApp = () => {
@@ -36,40 +37,6 @@ import view from './view';
 // });
 
 // ---------------------- Language test
-
-const parser = (data) => {
-  const parse = new DOMParser();
-  const dom = parse.parseFromString(data, 'application/xml');
-
-  if (dom.querySelector('parsererror')) {
-    const error = new Error(
-      `invalidRss: ${dom.querySelector('parsererror').textContent}`,
-    );
-    error.invalidRss = true;
-    throw error;
-  }
-
-  return dom;
-};
-
-const parseFeed = (dom) => ({
-  title: dom.querySelector('title').textContent,
-  description: dom.querySelector('description').textContent,
-});
-
-const parsePost = (dom) => {
-  const result = [];
-  const items = dom.querySelectorAll('item');
-  items.forEach((item) => {
-    const post = {
-      title: item.querySelector('title').textContent,
-      description: item.querySelector('description').textContent,
-      link: item.querySelector('link').textContent,
-    };
-    result.push(post);
-  });
-  return result;
-};
 
 const addId = (posts) => {
   const result = [];
@@ -132,11 +99,14 @@ const runApp = () => {
     results.then((responses) => {
       responses.forEach((response) => {
         if (response) {
-          const dom = parser(response.data.contents);
-          const parsedPost = parsePost(dom);
-          const post = addId(parsedPost);
+          // const dom = parser(response.data.contents);
+          const content = parse(response.data.contents);
+
+          // const parsedPost = parsePost(dom);
+          // const post = addId(parsedPost);
+          const posts = addId(content.posts);
           const currentPost = watchedState.posts.map((items) => items.title);
-          post.forEach((item) => {
+          posts.forEach((item) => {
             if (!currentPost.includes(item.title)) {
               watchedState.posts = [...watchedState.posts, item];
             }
@@ -155,16 +125,16 @@ const runApp = () => {
       .validate(data)
       .then((result) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(result.url)}`))
       .then((value) => {
-        const dom = parser(value.data.contents);
+        const content = parse(value.data.contents);
 
-        const feed = parseFeed(dom);
-        const parsedPost = parsePost(dom);
-        const post = addId(parsedPost);
+        // const feed = parseFeed(dom);
+        // const parsedPost = parsePost(dom);
+        const posts = addId(content.posts);
 
         if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
           watchedState.siteStorage.push(data.url);
-          watchedState.posts = [...post, ...watchedState.posts];
-          watchedState.feed.push(feed);
+          watchedState.posts = [...posts, ...watchedState.posts];
+          watchedState.feed.push(content.feed);
           watchedState.rssForm.valid = 'valid';
         } else if (watchedState.siteStorage.includes(data.url)) {
           watchedState.rssForm.valid = 'duplicate';
@@ -202,35 +172,35 @@ const runApp = () => {
 };
 
 // ------------------------ тестовые кнопки
-// const buttonPlace = document.querySelector('.rss-form');
-// const formInput = document.querySelector('#url-input');
-// const button1 = document.createElement('button');
-// const button2 = document.createElement('button');
-// const button3 = document.createElement('button');
-// button1.textContent = 'lorem-rss';
-// button2.textContent = 'Hexlet';
-// button3.textContent = 'birman';
-// button1.className = 'btn btn-outline-primary';
-// button2.className = 'btn btn-outline-primary';
-// button3.className = 'btn btn-outline-primary';
-// const div = document.createElement('div');
-// div.className = 'row justify-content-end';
-// const div8 = document.createElement('div');
-// div8.className = 'col-6';
-// div.append(div8);
-// div8.append(button1);
-// div8.append(button2);
-// div8.append(button3);
-// buttonPlace.append(div);
-// button1.addEventListener('click', () => {
-//   formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
-// });
-// button2.addEventListener('click', () => {
-//   formInput.value = 'https://ru.hexlet.io/lessons.rss';
-// });
-// button3.addEventListener('click', () => {
-//   formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
-// });
+const buttonPlace = document.querySelector('.rss-form');
+const formInput = document.querySelector('#url-input');
+const button1 = document.createElement('button');
+const button2 = document.createElement('button');
+const button3 = document.createElement('button');
+button1.textContent = 'lorem-rss';
+button2.textContent = 'Hexlet';
+button3.textContent = 'birman';
+button1.className = 'btn btn-outline-primary';
+button2.className = 'btn btn-outline-primary';
+button3.className = 'btn btn-outline-primary';
+const div = document.createElement('div');
+div.className = 'row justify-content-end';
+const div8 = document.createElement('div');
+div8.className = 'col-6';
+div.append(div8);
+div8.append(button1);
+div8.append(button2);
+div8.append(button3);
+buttonPlace.append(div);
+button1.addEventListener('click', () => {
+  formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
+});
+button2.addEventListener('click', () => {
+  formInput.value = 'https://ru.hexlet.io/lessons.rss';
+});
+button3.addEventListener('click', () => {
+  formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
+});
 // ------------------------ тестовые кнопки
 
 export default runApp;
