@@ -16,5 +16,14 @@ export default {
         invalidRss: 'Ресурс не содержит валидный RSS',
       },
     },
+    content: {
+      feed: 'Фиды',
+      post: 'Посты',
+      postButton: 'Просмотр',
+    },
+    modal: {
+      close: 'Закрыть',
+      read: 'Читать полностью',
+    },
   },
 };

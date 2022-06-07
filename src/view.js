@@ -21,11 +21,11 @@ const feedContent = document.querySelector('#content__feed');
 // };
 // ---------------------- Language test
 
-const renderFeed = (state) => {
+const renderFeed = (state, i18n) => {
   const feedTitleWrap = document.createElement('div');
   feedTitleWrap.className = 'card border-0';
   const feedTitle = document.createElement('h4');
-  feedTitle.textContent = 'Фиды';
+  feedTitle.textContent = i18n.t('content.feed');
   feedTitle.className = 'h4 card-body';
   feedTitleWrap.append(feedTitle);
 
@@ -50,11 +50,11 @@ const renderFeed = (state) => {
   feedContent.append(feedTitle, feedList);
 };
 
-const renderPost = (state) => {
+const renderPost = (state, i18n) => {
   const postTitleWrap = document.createElement('div');
   postTitleWrap.className = 'card border-0';
   const postTitle = document.createElement('h4');
-  postTitle.textContent = 'Посты';
+  postTitle.textContent = i18n.t('content.post');
   postTitle.className = 'h4 card-body';
   postTitleWrap.append(postTitle);
 
@@ -82,7 +82,7 @@ const renderPost = (state) => {
     button.setAttribute('data-id', id);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#exampleModal');
-    button.textContent = 'Просмотр';
+    button.textContent = i18n.t('content.postButton');
 
     li.append(a, button);
     return li;
@@ -93,7 +93,7 @@ const renderPost = (state) => {
   postContent.append(postTitleWrap, postList);
 };
 
-const renderModal = (item, visited) => item.forEach(({
+const renderModal = (item, visited, i18n) => item.forEach(({
   title, description, link, id,
 }) => {
   const currentId = visited[visited.length - 1];
@@ -101,9 +101,13 @@ const renderModal = (item, visited) => item.forEach(({
     const modalTitle = document.querySelector('.modal-title');
     const modalBody = document.querySelector('.modal-body');
     const modalLink = document.querySelector('.modal-footer a');
+    const modalBtnRead = document.querySelector('.btn-modal-read');
+    const modalBtnClose = document.querySelector('.btn-modal-close');
     modalTitle.textContent = title;
     modalBody.textContent = description;
     modalLink.setAttribute('href', link);
+    modalBtnRead.textContent = i18n.t('modal.read');
+    modalBtnClose.textContent = i18n.t('modal.close');
   }
 });
 
@@ -142,13 +146,13 @@ export default (state, i18n) => onChange(state, (path) => {
     renderRss(state, i18n);
   }
   if (path === 'feed') {
-    renderFeed(state);
+    renderFeed(state, i18n);
   }
   if (path === 'posts') {
-    renderPost(state);
+    renderPost(state, i18n);
   }
   if (path === 'visitedPost') {
-    renderPost(state);
-    renderModal(state.posts, state.visitedPost);
+    renderPost(state, i18n);
+    renderModal(state.posts, state.visitedPost, i18n);
   }
 });
