@@ -112,27 +112,27 @@ const renderModal = (item, visited, i18n) => item.forEach(({
 });
 
 const renderRss = (state, i18n) => {
-  if (state.rssForm.valid === 'duplicate') {
+  if (state.rssForm.process === 'duplicate') {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
     stateMessage.textContent = i18n.t('formRss.errors.duplicate');
-  } else if (state.rssForm.valid === 'error') {
+  } else if (state.rssForm.process === 'error') {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
     stateMessage.textContent = i18n.t('formRss.errors.invalid');
-  } else if (state.rssForm.valid === 'invalidRss') {
+  } else if (state.rssForm.process === 'invalidRss') {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
     stateMessage.textContent = i18n.t('formRss.errors.invalidRss');
-  } else if (state.rssForm.valid === 'network') {
+  } else if (state.rssForm.process === 'network') {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
     stateMessage.textContent = i18n.t('formRss.errors.network');
-  } else if (state.rssForm.valid === 'valid') {
+  } else if (state.rssForm.process === 'addFeed') {
     input.classList.remove('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-invalid');
     stateMessage.classList.add('form-container__state-message-valid');
@@ -142,7 +142,7 @@ const renderRss = (state, i18n) => {
 };
 
 export default (state, i18n) => onChange(state, (path) => {
-  if (path === 'rssForm.valid') {
+  if (path === 'rssForm.process') {
     renderRss(state, i18n);
   }
   if (path === 'feed') {

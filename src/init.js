@@ -69,6 +69,7 @@ const runApp = () => {
 
   const state = {
     rssForm: {
+      process: null,
       valid: null,
       errors: [],
     },
@@ -151,22 +152,27 @@ const runApp = () => {
           watchedState.siteStorage.push(data.url);
           watchedState.posts = [...posts, ...watchedState.posts];
           watchedState.feed.push(content.feed);
-          watchedState.rssForm.valid = 'valid';
+          // watchedState.rssForm.valid = 'true';
+          watchedState.rssForm.process = 'addFeed';
         } else if (watchedState.siteStorage.includes(data.url)) {
-          watchedState.rssForm.valid = 'duplicate';
+          // watchedState.rssForm.valid = 'duplicate';
+          watchedState.rssForm.process = 'duplicate';
           watchedState.rssForm.errors.push(`duplicate ${data.url}`);
         }
       })
 
       .catch((err) => {
         if (err.invalidRss) {
-          watchedState.rssForm.valid = 'invalidRss';
+          // watchedState.rssForm.valid = 'invalidRss';
+          watchedState.rssForm.process = 'invalidRss';
           watchedState.rssForm.errors.push(`invalid RSS ${err} ${data.url}`);
         } else if (err.isAxiosError) {
-          watchedState.rssForm.valid = 'network';
+          // watchedState.rssForm.valid = 'network';
+          watchedState.rssForm.process = 'network';
           watchedState.rssForm.errors.push(`error network ${err} ${data.url}`);
         } else {
-          watchedState.rssForm.valid = 'error';
+          // watchedState.rssForm.valid = 'error';
+          watchedState.rssForm.process = 'error';
           watchedState.rssForm.errors.push(`error ${err} ${data.url}`);
         }
       });
