@@ -112,33 +112,57 @@ const renderModal = (item, visited, i18n) => item.forEach(({
 });
 
 const renderRss = (state, i18n) => {
-  if (state.rssForm.process === 'duplicate') {
+  const button = document.querySelector('.form-container__btn');
+  // if (state.rssForm.process === 'duplicate') {
+  //   input.classList.add('form-container__invalid');
+  //   stateMessage.classList.remove('form-container__state-message-valid');
+  //   stateMessage.classList.add('form-container__state-message-invalid');
+  //   stateMessage.textContent = i18n.t('formRss.errors.duplicate');
+  //   button.disabled = false;
+
+  if (state.rssForm.process === 'failure') {
     input.classList.add('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-valid');
     stateMessage.classList.add('form-container__state-message-invalid');
-    stateMessage.textContent = i18n.t('formRss.errors.duplicate');
-  } else if (state.rssForm.process === 'error') {
-    input.classList.add('form-container__invalid');
-    stateMessage.classList.remove('form-container__state-message-valid');
-    stateMessage.classList.add('form-container__state-message-invalid');
-    stateMessage.textContent = i18n.t('formRss.errors.invalid');
-  } else if (state.rssForm.process === 'invalidRss') {
-    input.classList.add('form-container__invalid');
-    stateMessage.classList.remove('form-container__state-message-valid');
-    stateMessage.classList.add('form-container__state-message-invalid');
-    stateMessage.textContent = i18n.t('formRss.errors.invalidRss');
-  } else if (state.rssForm.process === 'network') {
-    input.classList.add('form-container__invalid');
-    stateMessage.classList.remove('form-container__state-message-valid');
-    stateMessage.classList.add('form-container__state-message-invalid');
-    stateMessage.textContent = i18n.t('formRss.errors.network');
-  } else if (state.rssForm.process === 'addFeed') {
+    // stateMessage.textContent = i18n.t('formRss.errors.duplicate');
+    // const d = 'duplicate';
+    // stateMessage.textContent = i18n.t('formRss.errors.duplicate');
+    stateMessage.textContent = i18n.t(`formRss.errors.${state.rssForm.error}`);
+    // console.log(state.rssForm.errors[state.rssForm.errors.length - 1]);
+    // console.log(state.rssForm.errors);
+    // stateMessage.textContent = i18n.t(`formRss.errors${[state.rssForm.errors[length - 1]]}`);
+    button.disabled = false;
+  } else if (state.rssForm.process === 'successfully') {
     input.classList.remove('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-invalid');
     stateMessage.classList.add('form-container__state-message-valid');
     stateMessage.textContent = i18n.t('formRss.valid');
     input.value = '';
+    button.disabled = false;
+  } else if (state.rssForm.process === 'addFeed') {
+    input.classList.remove('form-container__invalid');
+    stateMessage.classList.remove('form-container__state-message-invalid');
+    button.disabled = true;
   }
+  // else if (state.rssForm.process === 'error') {
+  //   input.classList.add('form-container__invalid');
+  //   stateMessage.classList.remove('form-container__state-message-valid');
+  //   stateMessage.classList.add('form-container__state-message-invalid');
+  //   stateMessage.textContent = i18n.t('formRss.errors.invalid');
+  //   button.disabled = false;
+  // } else if (state.rssForm.process === 'invalidRss') {
+  //   input.classList.add('form-container__invalid');
+  //   stateMessage.classList.remove('form-container__state-message-valid');
+  //   stateMessage.classList.add('form-container__state-message-invalid');
+  //   stateMessage.textContent = i18n.t('formRss.errors.invalidRss');
+  //   button.disabled = false;
+  // } else if (state.rssForm.process === 'network') {
+  //   input.classList.add('form-container__invalid');
+  //   stateMessage.classList.remove('form-container__state-message-valid');
+  //   stateMessage.classList.add('form-container__state-message-invalid');
+  //   stateMessage.textContent = i18n.t('formRss.errors.network');
+  //   button.disabled = false;
+  // }
 };
 
 export default (state, i18n) => onChange(state, (path) => {

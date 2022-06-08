@@ -71,7 +71,8 @@ const runApp = () => {
     rssForm: {
       process: null,
       valid: null,
-      errors: [],
+      error: null,
+      // errors: [],
     },
     siteStorage: [],
     postsTitle: [],
@@ -136,7 +137,7 @@ const runApp = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
-
+    watchedState.rssForm.process = 'addFeed';
     userSchema
       .validate(data)
       .then((result) => axios.get(getUrl(result.url)))
@@ -153,27 +154,38 @@ const runApp = () => {
           watchedState.posts = [...posts, ...watchedState.posts];
           watchedState.feed.push(content.feed);
           // watchedState.rssForm.valid = 'true';
-          watchedState.rssForm.process = 'addFeed';
+          // watchedState.rssForm.process = 'addFeed';
+          watchedState.rssForm.process = 'successfully';
+          watchedState.rssForm.error = null;
         } else if (watchedState.siteStorage.includes(data.url)) {
           // watchedState.rssForm.valid = 'duplicate';
-          watchedState.rssForm.process = 'duplicate';
-          watchedState.rssForm.errors.push(`duplicate ${data.url}`);
+          // watchedState.rssForm.process = 'duplicate';
+          watchedState.rssForm.error = 'duplicate';
+          watchedState.rssForm.process = 'failure';
+          // watchedState.rssForm.errors.push(`duplicate ${data.url}`);
+          // watchedState.rssForm.errors.push('duplicate');
         }
       })
 
       .catch((err) => {
         if (err.invalidRss) {
           // watchedState.rssForm.valid = 'invalidRss';
-          watchedState.rssForm.process = 'invalidRss';
-          watchedState.rssForm.errors.push(`invalid RSS ${err} ${data.url}`);
+          // watchedState.rssForm.errors.push(`invalid RSS ${err} ${data.url}`);
+          watchedState.rssForm.error = 'invalidRss';
+          watchedState.rssForm.process = 'failure';
+          // watchedState.rssForm.errors.push(`invalid RSS ${err} ${data.url}`);
         } else if (err.isAxiosError) {
           // watchedState.rssForm.valid = 'network';
-          watchedState.rssForm.process = 'network';
-          watchedState.rssForm.errors.push(`error network ${err} ${data.url}`);
+          // watchedState.rssForm.errors.push(`error network ${err} ${data.url}`);
+          watchedState.rssForm.error = 'network';
+          watchedState.rssForm.process = 'failure';
+          // watchedState.rssForm.errors.push(`error network ${err} ${data.url}`);
         } else {
           // watchedState.rssForm.valid = 'error';
-          watchedState.rssForm.process = 'error';
-          watchedState.rssForm.errors.push(`error ${err} ${data.url}`);
+          // watchedState.rssForm.errors.push(`error ${err} ${data.url}`);
+          watchedState.rssForm.error = 'invalid';
+          watchedState.rssForm.process = 'failure';
+          // watchedState.rssForm.errors.push(`error ${err} ${data.url}`);
         }
       });
 
