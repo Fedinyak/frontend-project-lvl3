@@ -4,17 +4,12 @@ const parseFeed = (dom) => ({
 });
 
 const parsePosts = (dom) => {
-  const result = [];
   const items = dom.querySelectorAll('item');
-  items.forEach((item) => {
-    const post = {
-      title: item.querySelector('title').textContent,
-      description: item.querySelector('description').textContent,
-      link: item.querySelector('link').textContent,
-    };
-    result.push(post);
-  });
-  return result;
+  return Array.from(items).map((item) => ({
+    title: item.querySelector('title').textContent,
+    description: item.querySelector('description').textContent,
+    link: item.querySelector('link').textContent,
+  }));
 };
 
 const parser = (data) => {

@@ -45,10 +45,9 @@ const getUrl = (url) => {
 };
 
 const addId = (posts) => {
-  const result = [];
-  posts.forEach((post) => {
+  const result = posts.map((post) => {
     const id = _.uniqueId('idPost_');
-    result.push({ ...post, id });
+    return { ...post, id };
   });
   return result;
 };
@@ -70,9 +69,7 @@ const runApp = () => {
   const state = {
     rssForm: {
       process: null,
-      valid: null,
       error: null,
-      // errors: [],
     },
     siteStorage: [],
     postsTitle: [],
@@ -112,26 +109,15 @@ const runApp = () => {
     results.then((responses) => {
       responses.forEach((response) => {
         if (response) {
-          // const dom = parser(response.data.contents);
           const content = parse(response.data.contents);
-
-          // const parsedPost = parsePost(dom);
-          // const post = addId(parsedPost);
           const posts = addId(content.posts);
           const currentPost = watchedState.posts.map((items) => items.title);
-          posts.forEach((item) => {
-            if (!currentPost.includes(item.title)) {
-              watchedState.posts = [...watchedState.posts, item];
-            }
-          });
+          const newPost = posts.filter((item) => (!currentPost.includes(item.title)));
+          watchedState.posts = [...watchedState.posts, ...newPost];
         }
       });
     }).then(() => setTimeout(() => listenRss(value), 5000));
   };
-
-  // let m = 'https://developer.mozilla.org';
-  // let a = new URL("/", m);
-  // => 'https://developer.mozilla.org/'
 
   const handle = (e) => {
     e.preventDefault();
@@ -141,56 +127,35 @@ const runApp = () => {
     userSchema
       .validate(data)
       .then((result) => axios.get(getUrl(result.url)))
-      // .then((result) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(result.url)}`))
       .then((value) => {
         const content = parse(value.data.contents);
-
-        // const feed = parseFeed(dom);
-        // const parsedPost = parsePost(dom);
         const posts = addId(content.posts);
 
         if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
           watchedState.siteStorage.push(data.url);
           watchedState.posts = [...posts, ...watchedState.posts];
           watchedState.feed.push(content.feed);
-          // watchedState.rssForm.valid = 'true';
-          // watchedState.rssForm.process = 'addFeed';
           watchedState.rssForm.process = 'successfully';
           watchedState.rssForm.error = null;
         } else if (watchedState.siteStorage.includes(data.url)) {
-          // watchedState.rssForm.valid = 'duplicate';
-          // watchedState.rssForm.process = 'duplicate';
           watchedState.rssForm.error = 'duplicate';
           watchedState.rssForm.process = 'failure';
-          // watchedState.rssForm.errors.push(`duplicate ${data.url}`);
-          // watchedState.rssForm.errors.push('duplicate');
         }
       })
-
       .catch((err) => {
         if (err.invalidRss) {
-          // watchedState.rssForm.valid = 'invalidRss';
-          // watchedState.rssForm.errors.push(`invalid RSS ${err} ${data.url}`);
           watchedState.rssForm.error = 'invalidRss';
           watchedState.rssForm.process = 'failure';
-          // watchedState.rssForm.errors.push(`invalid RSS ${err} ${data.url}`);
         } else if (err.isAxiosError) {
-          // watchedState.rssForm.valid = 'network';
-          // watchedState.rssForm.errors.push(`error network ${err} ${data.url}`);
           watchedState.rssForm.error = 'network';
           watchedState.rssForm.process = 'failure';
-          // watchedState.rssForm.errors.push(`error network ${err} ${data.url}`);
         } else {
-          // watchedState.rssForm.valid = 'error';
-          // watchedState.rssForm.errors.push(`error ${err} ${data.url}`);
           watchedState.rssForm.error = 'invalid';
           watchedState.rssForm.process = 'failure';
-          // watchedState.rssForm.errors.push(`error ${err} ${data.url}`);
         }
       });
 
     const formInput = document.querySelector('#url-input');
-
     formInput.focus();
   };
   listenRss(watchedState);
@@ -206,35 +171,35 @@ const runApp = () => {
 };
 
 // ------------------------ тестовые кнопки
-const buttonPlace = document.querySelector('.rss-form');
-const formInput = document.querySelector('#url-input');
-const button1 = document.createElement('button');
-const button2 = document.createElement('button');
-const button3 = document.createElement('button');
-button1.textContent = 'lorem-rss';
-button2.textContent = 'Hexlet';
-button3.textContent = 'birman';
-button1.className = 'btn btn-outline-primary';
-button2.className = 'btn btn-outline-primary';
-button3.className = 'btn btn-outline-primary';
-const div = document.createElement('div');
-div.className = 'row justify-content-end';
-const div8 = document.createElement('div');
-div8.className = 'col-6';
-div.append(div8);
-div8.append(button1);
-div8.append(button2);
-div8.append(button3);
-buttonPlace.append(div);
-button1.addEventListener('click', () => {
-  formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
-});
-button2.addEventListener('click', () => {
-  formInput.value = 'https://ru.hexlet.io/lessons.rss';
-});
-button3.addEventListener('click', () => {
-  formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
-});
+// const buttonPlace = document.querySelector('.rss-form');
+// const formInput = document.querySelector('#url-input');
+// const button1 = document.createElement('button');
+// const button2 = document.createElement('button');
+// const button3 = document.createElement('button');
+// button1.textContent = 'lorem-rss';
+// button2.textContent = 'Hexlet';
+// button3.textContent = 'birman';
+// button1.className = 'btn btn-outline-primary';
+// button2.className = 'btn btn-outline-primary';
+// button3.className = 'btn btn-outline-primary';
+// const div = document.createElement('div');
+// div.className = 'row justify-content-end';
+// const div8 = document.createElement('div');
+// div8.className = 'col-6';
+// div.append(div8);
+// div8.append(button1);
+// div8.append(button2);
+// div8.append(button3);
+// buttonPlace.append(div);
+// button1.addEventListener('click', () => {
+//   formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
+// });
+// button2.addEventListener('click', () => {
+//   formInput.value = 'https://ru.hexlet.io/lessons.rss';
+// });
+// button3.addEventListener('click', () => {
+//   formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
+// });
 // ------------------------ тестовые кнопки
 
 export default runApp;
