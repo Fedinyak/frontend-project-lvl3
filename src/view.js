@@ -1,10 +1,5 @@
 import onChange from 'on-change';
 
-const input = document.querySelector('.form-control');
-const stateMessage = document.querySelector('.form-container__state-message');
-const postContent = document.querySelector('#content__post');
-const feedsContent = document.querySelector('#content__feeds');
-
 // ---------------------- Language test
 // const siteText = (i18n) => {
 //   const title = document.querySelector('.form-container__title');
@@ -22,6 +17,7 @@ const feedsContent = document.querySelector('#content__feeds');
 // ---------------------- Language test
 
 const renderFeeds = (state, i18n) => {
+  const feedsContent = document.querySelector('#content__feeds');
   const feedsTitleWrap = document.createElement('div');
   feedsTitleWrap.className = 'card border-0';
   const feedsTitle = document.createElement('h4');
@@ -51,6 +47,7 @@ const renderFeeds = (state, i18n) => {
 };
 
 const renderPost = (state, i18n) => {
+  const postContent = document.querySelector('#content__post');
   const postTitleWrap = document.createElement('div');
   postTitleWrap.className = 'card border-0';
   const postTitle = document.createElement('h4');
@@ -110,6 +107,8 @@ const renderModal = (items, visited, i18n) => {
 
 const renderRss = (state, i18n) => {
   const button = document.querySelector('.form-container__btn');
+  const stateMessage = document.querySelector('.form-container__state-message');
+  const input = document.querySelector('.form-control');
 
   if (state.rssForm.process === 'failure') {
     input.classList.add('form-container__invalid');
@@ -129,6 +128,9 @@ const renderRss = (state, i18n) => {
     stateMessage.classList.remove('form-container__state-message-invalid');
     button.disabled = true;
   }
+
+  const formInput = document.querySelector('#url-input');
+  formInput.focus();
 };
 
 export default (state, i18n) => onChange(state, (path) => {

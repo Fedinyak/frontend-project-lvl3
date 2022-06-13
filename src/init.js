@@ -67,19 +67,19 @@ const runApp = () => {
       process: 'ready',
       error: null,
     },
-    siteStorage: [],
     postsTitle: [],
     posts: [],
     feeds: [],
     visitedPost: [],
   };
 
-  const validateData = (data, siteStorage) => {
+  const validateData = (data, feeds) => {
+    const curretUrls = feeds.map((item) => item.url);
     const userSchema = yup.object().shape({
       url: yup
         .string()
         .url('invalid')
-        .notOneOf(siteStorage, 'duplicate'),
+        .notOneOf(curretUrls, 'duplicate'),
     });
 
     return userSchema.validate(data);
@@ -106,7 +106,8 @@ const runApp = () => {
   const watchedState = view(state, i18nextInstance);
 
   const listenRss = (value) => {
-    const promises = value.siteStorage.map((url) => axios.get(getUrl(url)).catch(() => null));
+    const curretUrls = value.feeds.map((item) => item.url);
+    const promises = curretUrls.map((url) => axios.get(getUrl(url)).catch(() => null));
     const results = Promise.all(promises);
     results.then((responses) => {
       responses.forEach((response) => {
@@ -126,29 +127,15 @@ const runApp = () => {
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
     watchedState.rssForm.process = 'addFeeds';
-    validateData(data, watchedState.siteStorage)
-      // .validate(data)
+    validateData(data, watchedState.feeds)
       .then((result) => axios.get(getUrl(result.url)))
       .then((value) => {
-        const content = parse(value.data.contents);
+        const content = parse(value.data.contents, data.url);
         const posts = addId(content.posts);
-        watchedState.siteStorage.push(data.url);
         watchedState.posts = [...posts, ...watchedState.posts];
         watchedState.feeds.push(content.feeds);
         watchedState.rssForm.process = 'successfully';
         watchedState.rssForm.error = null;
-
-        // if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
-        //   watchedState.siteStorage.push(data.url);
-        //   watchedState.posts = [...posts, ...watchedState.posts];
-        //   watchedState.feeds.push(content.feeds);
-        //   watchedState.rssForm.process = 'successfully';
-        //   watchedState.rssForm.error = null;
-        // }
-        // else if (watchedState.siteStorage.includes(data.url)) {
-        //   watchedState.rssForm.error = 'duplicate';
-        //   watchedState.rssForm.process = 'failure';
-        // }
       })
       .catch((err) => {
         if (err.invalidRss) {
@@ -161,10 +148,15 @@ const runApp = () => {
           watchedState.rssForm.error = err.message;
           watchedState.rssForm.process = 'failure';
         }
+        // https://github.com/Fedinyak/frontend-project-lvl3/blob/6b9d941c367bf09075ed22f3793ff89ccd27aef2/src/init.js#L145-L154 -
+        // получается что текст ошибок валидации никак не используется?
+        // Хорошо бы их добавить, чтобы печатать пользователю что именно валидации не нравится.
+        // ---------------------------------------------
+        // Все сообщения выводятся под формой при нажатии на кнопку добавить,
+        // Например: Ссылка должна быть валидным URLб 'RSS уже существует',
+        // 'Ошибка сети','Ресурс не содержит валидный RSS'.
+        // Или печать ошибок пользователю должна быть где-то еще?
       });
-
-    const formInput = document.querySelector('#url-input');
-    formInput.focus();
   };
   listenRss(watchedState);
 
@@ -179,35 +171,35 @@ const runApp = () => {
 };
 
 // ------------------------ тестовые кнопки
-const buttonPlace = document.querySelector('.rss-form');
-const formInput = document.querySelector('#url-input');
-const button1 = document.createElement('button');
-const button2 = document.createElement('button');
-const button3 = document.createElement('button');
-button1.textContent = 'lorem-rss';
-button2.textContent = 'Hexlet';
-button3.textContent = 'birman';
-button1.className = 'btn btn-outline-primary';
-button2.className = 'btn btn-outline-primary';
-button3.className = 'btn btn-outline-primary';
-const div = document.createElement('div');
-div.className = 'row justify-content-end';
-const div8 = document.createElement('div');
-div8.className = 'col-6';
-div.append(div8);
-div8.append(button1);
-div8.append(button2);
-div8.append(button3);
-buttonPlace.append(div);
-button1.addEventListener('click', () => {
-  formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
-});
-button2.addEventListener('click', () => {
-  formInput.value = 'https://ru.hexlet.io/lessons.rss';
-});
-button3.addEventListener('click', () => {
-  formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
-});
+// const buttonPlace = document.querySelector('.rss-form');
+// const formInput = document.querySelector('#url-input');
+// const button1 = document.createElement('button');
+// const button2 = document.createElement('button');
+// const button3 = document.createElement('button');
+// button1.textContent = 'lorem-rss';
+// button2.textContent = 'Hexlet';
+// button3.textContent = 'birman';
+// button1.className = 'btn btn-outline-primary';
+// button2.className = 'btn btn-outline-primary';
+// button3.className = 'btn btn-outline-primary';
+// const div = document.createElement('div');
+// div.className = 'row justify-content-end';
+// const div8 = document.createElement('div');
+// div8.className = 'col-6';
+// div.append(div8);
+// div8.append(button1);
+// div8.append(button2);
+// div8.append(button3);
+// buttonPlace.append(div);
+// button1.addEventListener('click', () => {
+//   formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
+// });
+// button2.addEventListener('click', () => {
+//   formInput.value = 'https://ru.hexlet.io/lessons.rss';
+// });
+// button3.addEventListener('click', () => {
+//   formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
+// });
 // ------------------------ тестовые кнопки
 
 export default runApp;

@@ -1,7 +1,7 @@
-const parseFeeds = (dom) => ({
+const parseFeeds = (dom, url) => ({
   title: dom.querySelector('title').textContent,
   description: dom.querySelector('description').textContent,
-  link: dom.querySelector('link').textContent,
+  url,
 });
 
 const parsePosts = (dom) => {
@@ -13,7 +13,7 @@ const parsePosts = (dom) => {
   }));
 };
 
-const parser = (data) => {
+const parser = (data, url) => {
   const parse = new DOMParser();
   const dom = parse.parseFromString(data, 'application/xml');
 
@@ -25,7 +25,7 @@ const parser = (data) => {
     throw error;
   }
 
-  const feeds = parseFeeds(dom);
+  const feeds = parseFeeds(dom, url);
   const posts = parsePosts(dom);
   return { feeds, posts };
 };
