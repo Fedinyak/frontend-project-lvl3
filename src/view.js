@@ -3,7 +3,7 @@ import onChange from 'on-change';
 const input = document.querySelector('.form-control');
 const stateMessage = document.querySelector('.form-container__state-message');
 const postContent = document.querySelector('#content__post');
-const feedContent = document.querySelector('#content__feed');
+const feedsContent = document.querySelector('#content__feeds');
 
 // ---------------------- Language test
 // const siteText = (i18n) => {
@@ -21,18 +21,18 @@ const feedContent = document.querySelector('#content__feed');
 // };
 // ---------------------- Language test
 
-const renderFeed = (state, i18n) => {
-  const feedTitleWrap = document.createElement('div');
-  feedTitleWrap.className = 'card border-0';
-  const feedTitle = document.createElement('h4');
-  feedTitle.textContent = i18n.t('content.feed');
-  feedTitle.className = 'h4 card-body';
-  feedTitleWrap.append(feedTitle);
+const renderFeeds = (state, i18n) => {
+  const feedsTitleWrap = document.createElement('div');
+  feedsTitleWrap.className = 'card border-0';
+  const feedsTitle = document.createElement('h4');
+  feedsTitle.textContent = i18n.t('content.feeds');
+  feedsTitle.className = 'h4 card-body';
+  feedsTitleWrap.append(feedsTitle);
 
-  const feedList = document.createElement('ul');
-  feedList.className = 'list';
+  const feedsList = document.createElement('ul');
+  feedsList.className = 'list';
 
-  const feedsList = (item) => item.feed.map(({ title, description, id }) => {
+  const feedsItems = (item) => item.feeds.map(({ title, description, id }) => {
     const li = document.createElement('li');
     const h3 = document.createElement('h3');
     const p = document.createElement('p');
@@ -45,9 +45,9 @@ const renderFeed = (state, i18n) => {
     li.append(h3, p);
     return li;
   });
-  feedContent.innerHTML = '';
-  feedList.append(...feedsList(state));
-  feedContent.append(feedTitle, feedList);
+  feedsContent.innerHTML = '';
+  feedsList.append(...feedsItems(state));
+  feedsContent.append(feedsTitle, feedsList);
 };
 
 const renderPost = (state, i18n) => {
@@ -124,7 +124,7 @@ const renderRss = (state, i18n) => {
     stateMessage.textContent = i18n.t('formRss.valid');
     input.value = '';
     button.disabled = false;
-  } else if (state.rssForm.process === 'addFeed') {
+  } else if (state.rssForm.process === 'addFeeds') {
     input.classList.remove('form-container__invalid');
     stateMessage.classList.remove('form-container__state-message-invalid');
     button.disabled = true;
@@ -135,8 +135,8 @@ export default (state, i18n) => onChange(state, (path) => {
   if (path === 'rssForm.process') {
     renderRss(state, i18n);
   }
-  if (path === 'feed') {
-    renderFeed(state, i18n);
+  if (path === 'feeds') {
+    renderFeeds(state, i18n);
   }
   if (path === 'posts') {
     renderPost(state, i18n);

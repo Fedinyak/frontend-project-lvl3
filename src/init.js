@@ -62,25 +62,32 @@ const runApp = () => {
     },
   });
 
-  const userSchema = yup.object().shape({
-    url: yup.string().url(),
-  });
-
   const state = {
     rssForm: {
-      process: null,
+      process: 'ready',
       error: null,
     },
     siteStorage: [],
     postsTitle: [],
     posts: [],
-    feed: [],
+    feeds: [],
     visitedPost: [],
+  };
+
+  const validateData = (data, siteStorage) => {
+    const userSchema = yup.object().shape({
+      url: yup
+        .string()
+        .url('invalid')
+        .notOneOf(siteStorage, 'duplicate'),
+    });
+
+    return userSchema.validate(data);
   };
 
   const formElement = document.querySelector('.rss-form');
 
-  const siteText = (i18n) => {
+  const initView = (i18n) => {
     const title = document.querySelector('.form-container__title');
     const description = document.querySelector('.form-container__description');
     const label = document.querySelector('.form-container__label');
@@ -94,12 +101,7 @@ const runApp = () => {
     button.textContent = i18n.t('formRss.button');
   };
 
-  // https://github.com/Fedinyak/frontend-project-lvl3/blob/a3515ddfb4676f0737a84ba33b4a6eeca9c8a3fd/src/init.js#L111-L125
-  // это же всё можно сразу перенести в шаблон. Или это для определения нужного языка сделано?
-  // (тогда ок)
-  // --- Да, нужно для определения языка, тогда не исправляю?
-
-  siteText(i18nextInstance);
+  initView(i18nextInstance);
 
   const watchedState = view(state, i18nextInstance);
 
@@ -123,24 +125,30 @@ const runApp = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
-    watchedState.rssForm.process = 'addFeed';
-    userSchema
-      .validate(data)
+    watchedState.rssForm.process = 'addFeeds';
+    validateData(data, watchedState.siteStorage)
+      // .validate(data)
       .then((result) => axios.get(getUrl(result.url)))
       .then((value) => {
         const content = parse(value.data.contents);
         const posts = addId(content.posts);
+        watchedState.siteStorage.push(data.url);
+        watchedState.posts = [...posts, ...watchedState.posts];
+        watchedState.feeds.push(content.feeds);
+        watchedState.rssForm.process = 'successfully';
+        watchedState.rssForm.error = null;
 
-        if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
-          watchedState.siteStorage.push(data.url);
-          watchedState.posts = [...posts, ...watchedState.posts];
-          watchedState.feed.push(content.feed);
-          watchedState.rssForm.process = 'successfully';
-          watchedState.rssForm.error = null;
-        } else if (watchedState.siteStorage.includes(data.url)) {
-          watchedState.rssForm.error = 'duplicate';
-          watchedState.rssForm.process = 'failure';
-        }
+        // if (_.indexOf(watchedState.siteStorage, data.url) === -1) {
+        //   watchedState.siteStorage.push(data.url);
+        //   watchedState.posts = [...posts, ...watchedState.posts];
+        //   watchedState.feeds.push(content.feeds);
+        //   watchedState.rssForm.process = 'successfully';
+        //   watchedState.rssForm.error = null;
+        // }
+        // else if (watchedState.siteStorage.includes(data.url)) {
+        //   watchedState.rssForm.error = 'duplicate';
+        //   watchedState.rssForm.process = 'failure';
+        // }
       })
       .catch((err) => {
         if (err.invalidRss) {
@@ -150,7 +158,7 @@ const runApp = () => {
           watchedState.rssForm.error = 'network';
           watchedState.rssForm.process = 'failure';
         } else {
-          watchedState.rssForm.error = 'invalid';
+          watchedState.rssForm.error = err.message;
           watchedState.rssForm.process = 'failure';
         }
       });
@@ -171,35 +179,35 @@ const runApp = () => {
 };
 
 // ------------------------ тестовые кнопки
-// const buttonPlace = document.querySelector('.rss-form');
-// const formInput = document.querySelector('#url-input');
-// const button1 = document.createElement('button');
-// const button2 = document.createElement('button');
-// const button3 = document.createElement('button');
-// button1.textContent = 'lorem-rss';
-// button2.textContent = 'Hexlet';
-// button3.textContent = 'birman';
-// button1.className = 'btn btn-outline-primary';
-// button2.className = 'btn btn-outline-primary';
-// button3.className = 'btn btn-outline-primary';
-// const div = document.createElement('div');
-// div.className = 'row justify-content-end';
-// const div8 = document.createElement('div');
-// div8.className = 'col-6';
-// div.append(div8);
-// div8.append(button1);
-// div8.append(button2);
-// div8.append(button3);
-// buttonPlace.append(div);
-// button1.addEventListener('click', () => {
-//   formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
-// });
-// button2.addEventListener('click', () => {
-//   formInput.value = 'https://ru.hexlet.io/lessons.rss';
-// });
-// button3.addEventListener('click', () => {
-//   formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
-// });
+const buttonPlace = document.querySelector('.rss-form');
+const formInput = document.querySelector('#url-input');
+const button1 = document.createElement('button');
+const button2 = document.createElement('button');
+const button3 = document.createElement('button');
+button1.textContent = 'lorem-rss';
+button2.textContent = 'Hexlet';
+button3.textContent = 'birman';
+button1.className = 'btn btn-outline-primary';
+button2.className = 'btn btn-outline-primary';
+button3.className = 'btn btn-outline-primary';
+const div = document.createElement('div');
+div.className = 'row justify-content-end';
+const div8 = document.createElement('div');
+div8.className = 'col-6';
+div.append(div8);
+div8.append(button1);
+div8.append(button2);
+div8.append(button3);
+buttonPlace.append(div);
+button1.addEventListener('click', () => {
+  formInput.value = 'https://lorem-rss.herokuapp.com/feed?unit=second&interval=10';
+});
+button2.addEventListener('click', () => {
+  formInput.value = 'https://ru.hexlet.io/lessons.rss';
+});
+button3.addEventListener('click', () => {
+  formInput.value = 'http://ilyabirman.ru/meanwhile/rss/';
+});
 // ------------------------ тестовые кнопки
 
 export default runApp;
